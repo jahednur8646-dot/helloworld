@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>দোকানের হিসাব</title>
+<style>
+body{font-family:sans-serif;background:#f2f2f2;padding:15px}
+h1{text-align:center}
+.card{background:#fff;padding:15px;border-radius:12px;margin-bottom:15px}
+input{width:100%;padding:10px;margin:5px 0;border:1px solid #ccc;border-radius:8px;box-sizing:border-box}
+button{width:100%;padding:12px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:16px}
+.customer{background:#fff;padding:12px;border-radius:10px;margin-bottom:10px;border-left:5px solid #f59e0b}
+.small{color:#666;font-size:13px}
+.total{background:#111827;color:#fff;padding:15px;border-radius:12px;text-align:center;margin-bottom:15px}
+</style>
+</head>
+<body>
+<h1>🏪 আমার দোকানের হিসাব</h1>
+<div class="total" id="totalBox">লোড হচ্ছে...</div>
+<div class="card">
+<input id="name" placeholder="কাস্টমারের নাম">
+<input id="phone" placeholder="মোবাইল নাম্বার">
+<input id="total" type="number" placeholder="মোট টাকা">
+<input id="paid" type="number" placeholder="কত টাকা দিয়েছে">
+<button onclick="addCustomer()">হিসাব যোগ করো</button>
+</div>
+<div id="list"></div>
+<script>
+let data = JSON.parse(localStorage.getItem('hisab')||'[]');
+function save(){localStorage.setItem('hisab',JSON.stringify(data)); render();}
+function addCustomer(){
+let n=name.value, p=phone.value, t=+total.value, pd=+paid.value;
+if(!n||!t){alert('নাম আর মোট টাকা দাও');return;}
+data.unshift({n,p,t,pd}); name.value=phone.value=total.value=paid.value=''; save();
+}
+function pay(i,amt){
+let v=prompt('কত টাকা দিলো?',amt);
+if(v){data[i].pd+=+v; save();}
+}
+function del(i){if(confirm('মুছে দিবো?')){data.splice(i,1);save();}}
+function render(){
+let totalBaki=data.reduce((s,x)=>s+(x.t-x.pd),0);
+totalBox.innerHTML='মোট বাকি: ৳ '+totalBaki+'<br>মোট কাস্টমার: '+data.length+' জন';
+list.innerHTML=data.map((x,i)=>`<div class="customer"><b>${x.n}</b> <span class="small">${x.p||''}</span><br>মোট: ৳${x.t} | দিয়েছে: ৳${x.pd} | <b style="color:red">বাকি: ৳${x.t-x.pd}</b><br><button onclick="pay(${i})" style="background:#3b82f6;margin-top:8px">টাকা দিয়েছে</button> <button onclick="del(${i})" style="background:#ef4444;margin-top:8px">মুছো</button></div>`).join('')||'কোনো হিসাব নাই';
+}
+render();
+</script>
+</body>
+</html>
